@@ -39,6 +39,8 @@ function App() {
     throw new Error('Erro ao excluir usuário')
   }
 
+  console.log(`Usuário com id ${id} excluído com sucesso.`)
+
   setUsuarios((listaAtual) =>
     listaAtual.filter((usuario) => usuario.id !== id)
   )
