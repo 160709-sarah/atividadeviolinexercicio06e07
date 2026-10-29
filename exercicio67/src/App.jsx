@@ -5,11 +5,16 @@ function App() {
   const [usuarios, setUsuarios] = useState([]);
   const [carregando, setCarregando] = useState(true);
   const [ erro, setErro] = useState('');
+  const [usuarioEditando, setUsuarioEditando] = useState(null);
+  const [nome, setNome] = useState('');
+  const [email, setEmail] = useState('');
+
+  const API = 'https://jsonplaceholder.typicode.com/users'
 
   useEffect(() => { 
     async function buscarUsuarios() {
       try {
-        const resposta = await fetch ('https://jsonplaceholder.typicode.com/users')
+        const resposta = await fetch (API)
 
         if (!resposta.ok) {
           throw new Error('Erro ao buscar usuários')
@@ -29,7 +34,7 @@ function App() {
 
   async function excluirUsuario(id) {
     try{
-      const resposta = await fetch(`https://jsonplaceholder.typicode.com/users/${id}`, 
+      const resposta = await fetch(`${API}/${id}`, 
         {
           method: 'DELETE'
     }
@@ -46,6 +51,49 @@ function App() {
   )
 } catch (erro) {
     alert('Não foi possível excluir o usuário.')
+  }
+}
+
+function editarUsuario(usuario) {
+  setUsuarioEditando(usuario);
+  setNome(usuario.name);
+  setEmail(usuario.email); 
+}
+
+async function salvarEdicao(event) { 
+  event.preventDefault();
+
+  try {
+    const resposta = await fetch(
+      `${API}/${usuarioEditando.id}`,
+      {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          name: nome,
+          email: email
+        })
+      }
+    )
+    if (!resposta.ok) {
+      throw new Error('Erro ao atualizar usuário')
+    }
+
+    const usuarioAtualizado = await resposta.json()
+
+    setUsuarios((listaAtual) =>
+      listaAtual.map((usuario) =>
+        usuario.id === usuarioEditando.id ? usuarioAtualizado : usuario
+      )
+    )
+
+    setUsuarioEditando(null)
+    setNome('')
+    setEmail('')
+  } catch (erro) {
+    alert('Não foi possível atualizar o usuário.')
   }
 }
 
@@ -67,10 +115,29 @@ if (erro) {
           <strong>{usuario.name}</strong> 
           <p>{usuario.email}</p>
           </div>
-
+          <button onClick={() => editarUsuario(usuario)}>Editar</button>
           <button onClick={() => excluirUsuario(usuario.id)}>Excluir</button>
         </div>
       ))}
+
+      {usuarioEditando && (
+        <form onSubmit={salvarEdicao}>
+          <h2>Editar usuário</h2>
+          <label>
+            Nome:
+            <input
+              type="text"
+              value={nome}
+              onChange={(event) => setNome(e.target.value)}/>
+           </label>
+
+           <br />
+
+           <button type="submit">Salvar</button>
+
+           <button type="button" onClick={() => setUsuarioEditando(null)}>Cancelar</button>
+        </form>
+      )}
     </div>
   )
 }
