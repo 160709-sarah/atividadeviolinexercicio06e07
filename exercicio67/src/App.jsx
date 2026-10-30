@@ -8,19 +8,23 @@ function App() {
   const [usuarioEditando, setUsuarioEditando] = useState(null);
   const [nome, setNome] = useState('');
   const [email, setEmail] = useState('');
+  const [usuarioUnico, setUsuarioUnico] = useState(null);
 
   const API = 'https://jsonplaceholder.typicode.com/users'
 
+
+// Buscar usuarios
   useEffect(() => { 
     async function buscarUsuarios() {
       try {
-        const resposta = await fetch (API)
+        const resposta = await fetch ('https://jsonplaceholder.typicode.com/users/5')
 
         if (!resposta.ok) {
           throw new Error('Erro ao buscar usuários')
         }
 
         const dados = await resposta.json()
+        
         setUsuarios(dados)
       } catch (erro) {
         setErro('Não foi possível buscar os usuários')
@@ -31,6 +35,8 @@ function App() {
 
     buscarUsuarios()
   }, [])
+
+  // Excluir usuario
 
   async function excluirUsuario(id) {
     try{
@@ -54,11 +60,15 @@ function App() {
   }
 }
 
+// Abrir formulário de edição
+
 function editarUsuario(usuario) {
   setUsuarioEditando(usuario);
   setNome(usuario.name);
   setEmail(usuario.email); 
 }
+
+// Salvar edição do usuário
 
 async function salvarEdicao(event) { 
   event.preventDefault();
@@ -133,6 +143,18 @@ if (erro) {
 
            <br />
 
+           <label> 
+              Email:
+            <input
+              type="email"
+              value={email}
+              onChange={(event) => setEmail(event.target.value)}
+              required
+              />
+
+            <br />
+
+           </label>
            <button type="submit">Salvar</button>
 
            <button type="button" onClick={() => setUsuarioEditando(null)}>Cancelar</button>
